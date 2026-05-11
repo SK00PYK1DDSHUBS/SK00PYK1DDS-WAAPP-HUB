@@ -2,7 +2,7 @@ repeat task.wait() until game:IsLoaded()
 
 -- [[ CONFIGURATION ]]
 local correctGameId = 192800 
-local kickMessage = "⚠️ SK00PYHub: This script is not supported for this game."
+local kickMessage = "⚠️ Sorry Bro :d You Are Not On The Correct Game. (SK00PYK1DD HUBS)"
 local rawLink = "https://raw.githubusercontent.com/SK00PYK1DDSHUBS/SK00PYK1DDS-WAAPP-HUB/refs/heads/main/SK00PYK1DDS%20WAAPP%20HUB"
 -- [[ GAME GUARD ]]
 if game.PlaceId ~= correctGameId and game.GameId ~= correctGameId then
