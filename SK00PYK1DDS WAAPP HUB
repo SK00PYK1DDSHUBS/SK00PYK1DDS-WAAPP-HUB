@@ -1,0 +1,294 @@
+repeat task.wait() until game:IsLoaded()
+
+-- [[ CONFIGURATION ]]
+local correctGameId = 192800 -- Work at a Pizza Place ID
+local kickMessage = "⚠️ SK00PYHub: This script is not supported for this game."
+local rawLink = "https://raw.githubusercontent.com/SK00PYK1DDSHUBS/SK00PYK1DDS-WAAPP-HUB/main/main.lua"
+
+-- [[ GAME GUARD ]]
+if game.PlaceId ~= correctGameId and game.GameId ~= correctGameId then
+	game:GetService("Players").LocalPlayer:Kick(kickMessage)
+	return
+end
+
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local TeleportService = game:GetService("TeleportService")
+
+local player = Players.LocalPlayer
+
+-- UI ORDERED DATA
+local jobAreas = {
+	{"Manager Office", Vector3.new(26,7,6)},
+	{"Pizza Boxing Area", Vector3.new(55,4,12)},
+	{"Cook Area", Vector3.new(36,4,58)},
+	{"Cashier Area", Vector3.new(49,4,83)},
+	{"Delivery Area", Vector3.new(66,4,-16)},
+	{"Supplier Area", Vector3.new(7,13,-1021)}
+}
+
+local extras = {
+	{"Dump", Vector3.new(23,3,-182)},
+	{"Pet Shop", Vector3.new(28,3,-242)},
+	{"Island 1", Vector3.new(1523,0,1363)},
+	{"Island 2", Vector3.new(-991,34,714)},
+	{"Island 3", Vector3.new(-1763,100,-1324)},
+	{"Boat Area", Vector3.new(-469,2,-341)},
+	{"Revive Pets", Vector3.new(-1748,2,-1262)},
+	{"Secret Area", Vector3.new(-481,-24,-544)}
+}
+
+pcall(function()
+	if CoreGui:FindFirstChild("SK00PYHub") then
+		CoreGui.SK00PYHub:Destroy()
+	end
+end)
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "SK00PYHub"
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+if syn and syn.protect_gui then
+	pcall(function() syn.protect_gui(gui) end)
+end
+
+gui.Parent = gethui and gethui() or CoreGui
+
+-- 🌱 COLORS
+local mainColor = Color3.fromRGB(18, 32, 18)
+local topColor = Color3.fromRGB(10, 24, 10)
+local accent = Color3.fromRGB(80, 255, 120)
+local accentDark = Color3.fromRGB(45, 180, 80)
+local buttonColor = Color3.fromRGB(28, 50, 28)
+local strokeColor = Color3.fromRGB(90, 255, 140)
+
+-- MAIN
+local main = Instance.new("Frame")
+main.Parent = gui
+main.Size = UDim2.new(0,650,0,400)
+main.Position = UDim2.new(0.5,-325,0.5,-200)
+main.BackgroundColor3 = mainColor
+main.Active = true
+main.Draggable = true
+Instance.new("UICorner", main).CornerRadius = UDim.new(0,14)
+Instance.new("UIStroke", main).Color = strokeColor
+
+-- TOPBAR
+local topbar = Instance.new("Frame")
+topbar.Parent = main
+topbar.Size = UDim2.new(1,0,0,55)
+topbar.BackgroundColor3 = topColor
+Instance.new("UICorner", topbar).CornerRadius = UDim.new(0,14)
+
+local title = Instance.new("TextLabel")
+title.Parent = topbar
+title.BackgroundTransparency = 1
+title.Position = UDim2.new(0,20,0,0)
+title.Size = UDim2.new(0,450,1,0)
+title.Font = Enum.Font.GothamBlack
+title.Text = "SK00PYK1DD’s Waapp Hub"
+title.TextColor3 = accent
+title.TextScaled = true
+title.TextXAlignment = Enum.TextXAlignment.Left
+
+-- CLOSE
+local close = Instance.new("TextButton")
+close.Parent = topbar
+close.Size = UDim2.fromScale(0.055, 0.7)
+close.Position = UDim2.fromScale(0.92, 0.15)
+close.TextScaled = true
+close.Text = "X"
+close.Font = Enum.Font.GothamBold
+close.TextColor3 = Color3.new(1,1,1)
+close.BackgroundColor3 = Color3.fromRGB(40,120,40)
+Instance.new("UICorner", close).CornerRadius = UDim.new(0,10)
+close.MouseButton1Click:Connect(function() gui:Destroy() end)
+
+-- CATEGORY BAR
+local categoryBar = Instance.new("Frame")
+categoryBar.Parent = main
+categoryBar.Position = UDim2.new(0,15,0,70)
+categoryBar.Size = UDim2.new(1,-30,0,45)
+categoryBar.BackgroundColor3 = buttonColor
+Instance.new("UICorner", categoryBar).CornerRadius = UDim.new(0,10)
+
+-- Helper to make consistent Tab Buttons
+local function createTab(name, index)
+	local btn = Instance.new("TextButton")
+	btn.Parent = categoryBar
+	btn.Size = UDim2.new(0, 145, 0.8, 0) 
+	btn.Position = UDim2.new(0, 10 + ((index-1) * 153), 0.1, 0)
+	btn.BackgroundColor3 = buttonColor
+	btn.Text = name
+	btn.Font = Enum.Font.GothamBold
+	btn.TextScaled = true 
+	btn.TextColor3 = Color3.new(1,1,1)
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0,8)
+	
+	local constraint = Instance.new("UITextSizeConstraint", btn)
+	constraint.MaxTextSize = 18
+	constraint.MinTextSize = 12
+	
+	return btn
+end
+
+local teleportTab = createTab("📍 Teleports", 1)
+teleportTab.BackgroundColor3 = accentDark
+local switchTab = createTab("💼 Jobs", 2)
+local musicTab = createTab("🎵 Music", 3)
+local localPlayerTab = createTab("👤 Player", 4)
+
+-- HOLDERS
+local teleportHolder = Instance.new("ScrollingFrame")
+teleportHolder.Parent = main
+teleportHolder.Position = UDim2.new(0,15,0,130)
+teleportHolder.Size = UDim2.new(1,-30,1,-145)
+teleportHolder.BackgroundTransparency = 1
+teleportHolder.ScrollBarThickness = 6
+teleportHolder.ScrollBarImageColor3 = accent
+teleportHolder.CanvasSize = UDim2.new(0,0,0,0)
+teleportHolder.AutomaticCanvasSize = Enum.AutomaticSize.Y
+teleportHolder.BorderSizePixel = 0
+
+local switchHolder = teleportHolder:Clone()
+switchHolder.Parent = main
+switchHolder.Visible = false
+
+local musicHolder = teleportHolder:Clone()
+musicHolder.Parent = main
+musicHolder.Visible = false
+
+local localPlayerHolder = teleportHolder:Clone()
+localPlayerHolder.Parent = main
+localPlayerHolder.Visible = false
+
+local function applyLayout(holder)
+	local grid = Instance.new("UIGridLayout", holder)
+	grid.CellSize = UDim2.new(0,285,0,65)
+	grid.CellPadding = UDim2.new(0,10,0,10)
+	local pad = Instance.new("UIPadding", holder)
+	pad.PaddingTop = UDim.new(0,5)
+	pad.PaddingBottom = UDim.new(0,10)
+end
+
+applyLayout(teleportHolder)
+applyLayout(switchHolder)
+applyLayout(musicHolder)
+applyLayout(localPlayerHolder)
+
+-- BUTTON CREATORS
+local function createGenericBtn(parent, name, callback)
+	local b = Instance.new("TextButton")
+	b.Parent = parent
+	b.BackgroundColor3 = buttonColor
+	b.Text = ""
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0,12)
+	local t = Instance.new("TextLabel")
+	t.Parent = b
+	t.BackgroundTransparency = 1
+	t.Size = UDim2.new(1,-20,1,0)
+	t.Position = UDim2.new(0,10,0,0)
+	t.Font = Enum.Font.GothamBold
+	t.Text = name
+	t.TextColor3 = accent
+	t.TextScaled = true
+	t.TextXAlignment = Enum.TextXAlignment.Left
+	b.MouseButton1Click:Connect(callback)
+end
+
+-- POPULATE TELEPORTS
+for _, data in ipairs(jobAreas) do 
+	createGenericBtn(teleportHolder, data[1], function()
+		if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+			player.Character.HumanoidRootPart.CFrame = CFrame.new(data[2])
+		end
+	end) 
+end
+for _, data in ipairs(extras) do 
+	createGenericBtn(teleportHolder, data[1], function()
+		if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+			player.Character.HumanoidRootPart.CFrame = CFrame.new(data[2])
+		end
+	end) 
+end
+
+-- POPULATE JOBS
+local jobs = {{"Cashier","Cashier"},{"Cook","Cook"},{"Pizza Boxer","Pizza Boxer"},{"Delivery","Delivery"},{"Supplier","Supplier"}}
+for _,v in ipairs(jobs) do
+	createGenericBtn(switchHolder, "Switch To "..v[1], function()
+		game:GetService("ReplicatedStorage"):WaitForChild("PlayerChannel"):FireServer("ChangeJob", v[2])
+	end)
+end
+
+-- POPULATE MUSIC
+createGenericBtn(musicHolder, "The Dump Music", function()
+	game:GetService("ReplicatedStorage"):WaitForChild("PlayerChannel"):FireServer("LocationChanged", "TheDump")
+end)
+createGenericBtn(musicHolder, "The Pet Store Music", function()
+	game:GetService("ReplicatedStorage"):WaitForChild("PlayerChannel"):FireServer("LocationChanged", "PetShop")
+end)
+
+-- POPULATE LOCALPLAYER
+createGenericBtn(localPlayerHolder, "Super Speed", function()
+	if player.Character and player.Character:FindFirstChild("Humanoid") then
+		player.Character.Humanoid.WalkSpeed = 100
+	end
+end)
+
+createGenericBtn(localPlayerHolder, "Super Jump", function()
+	if player.Character and player.Character:FindFirstChild("Humanoid") then
+		player.Character.Humanoid.JumpPower = 200
+	end
+end)
+
+createGenericBtn(localPlayerHolder, "Sit", function()
+	if player.Character and player.Character:FindFirstChild("Humanoid") then
+		player.Character.Humanoid.Sit = true
+	end
+end)
+
+createGenericBtn(localPlayerHolder, "Fast Respawn (Stay Pos)", function()
+	local char = player.Character
+	if char and char:FindFirstChild("HumanoidRootPart") then
+		local lastPos = char.HumanoidRootPart.CFrame
+		char.Humanoid.Health = 0
+		player.CharacterAdded:Wait()
+		local newRoot = player.Character:WaitForChild("HumanoidRootPart", 5)
+		if newRoot then newRoot.CFrame = lastPos end
+	end
+end)
+
+createGenericBtn(localPlayerHolder, "Rejoin (Auto-Load)", function()
+	local queue_on_teleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
+	
+	if queue_on_teleport then
+		queue_on_teleport([[loadstring(game:HttpGet("]] .. rawLink .. [["))()]])
+	end
+	
+	TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, player)
+end)
+
+-- TAB SWITCH LOGIC
+local tabs = {
+	{Btn = teleportTab, Holder = teleportHolder},
+	{Btn = switchTab, Holder = switchHolder},
+	{Btn = musicTab, Holder = musicHolder},
+	{Btn = localPlayerTab, Holder = localPlayerHolder}
+}
+
+local function switchMenu(activeTab)
+	for _, tabData in ipairs(tabs) do
+		if tabData.Btn == activeTab then
+			tabData.Holder.Visible = true
+			tabData.Btn.BackgroundColor3 = accentDark
+		else
+			tabData.Holder.Visible = false
+			tabData.Btn.BackgroundColor3 = buttonColor
+		end
+	end
+end
+
+teleportTab.MouseButton1Click:Connect(function() switchMenu(teleportTab) end)
+switchTab.MouseButton1Click:Connect(function() switchMenu(switchTab) end)
+musicTab.MouseButton1Click:Connect(function() switchMenu(musicTab) end)
+localPlayerTab.MouseButton1Click:Connect(function() switchMenu(localPlayerTab) end)
